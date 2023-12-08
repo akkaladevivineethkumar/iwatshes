@@ -1,13 +1,14 @@
 import {Component} from 'react'
+import {Link} from 'react-router-dom'
 import Loader from 'react-loader-spinner'
-
+import {PieChart, Pie, Cell, Legend, Tooltip} from 'recharts'
 import LatestMatch from '../LatestMatch'
 import MatchCard from '../MatchCard'
 
 import './index.css'
 
 const teamMatchesApiUrl = 'https://apis.ccbp.in/ipl/'
-
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 class TeamMatches extends Component {
   state = {
     isLoading: true,
@@ -63,15 +64,53 @@ class TeamMatches extends Component {
     )
   }
 
+  pieCharts = () => {
+    const {teamMatchesData} = this.state
+    return (
+      <div>
+        <h2>Team Matches Statistics</h2>
+        <PieChart width={400} height={400}>
+          <Pie
+            data={teamMatchesData.recentMatches}
+            cx={200}
+            cy={200}
+            innerRadius={60}
+            outerRadius={80}
+            fill="#8884d8"
+            paddingAngle={5}
+            dataKey="value"
+          >
+            {teamMatchesData.recentMatches.map((entry, index) => (
+              <Cell
+                key={`cell-${entry.id}`}
+                fill={COLORS[entry.id % COLORS.length]}
+              />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </div>
+    )
+  }
+
   renderTeamMatches = () => {
     const {teamMatchesData} = this.state
     const {teamBannerURL, latestMatch} = teamMatchesData
 
     return (
       <div className="responsive-container">
+        <div>
+          <Link to="/">
+            <button className="back-button" type="button">
+              Back
+            </button>
+          </Link>
+        </div>
         <img src={teamBannerURL} alt="team banner" className="team-banner" />
         <LatestMatch latestMatchData={latestMatch} />
         {this.renderRecentMatchesList()}
+        {this.pieCharts()}
       </div>
     )
   }
@@ -120,5 +159,4 @@ class TeamMatches extends Component {
     )
   }
 }
-
 export default TeamMatches
